@@ -10,6 +10,14 @@ public class CustomNetworkControl : NetworkManager {
 
     private ChatController myChat;
 
+
+    public class ChatMessage : MessageBase
+    {
+        public string sender;
+        public string message;
+    }
+
+
 	// Use this for initialization
 	void Start () {
 
@@ -50,6 +58,14 @@ public class CustomNetworkControl : NetworkManager {
     {
         client.RegisterHandler(2002, OnNameAssigned);
         client.RegisterHandler(2003, OnOtherPlayerJoinedGame);
+        client.RegisterHandler(3001, OnChatMessageReceived);
+    }
+
+    public void OnChatMessageReceived(NetworkMessage netMsg)
+    {
+        ChatMessage received = netMsg.ReadMessage<ChatMessage>();
+
+        myChat.OnChatMessageReceived(received.sender, received.message);
     }
 
     public void OnOtherPlayerJoinedGame(NetworkMessage netMsg)
@@ -70,6 +86,22 @@ public class CustomNetworkControl : NetworkManager {
     private void RegisterServerListeners()
     {
         NetworkServer.RegisterHandler(2001, OnPlayerNameReceived);
+        NetworkServer.RegisterHandler(3000, OnPlayerSendChatMessage);
+    }
+
+    public void OnPlayerSendChatMessage(NetworkMessage netMsg)
+    {
+        string message = netMsg.ReadMessage<StringMessage>().value.Trim();
+        if (message.Length > 100)
+        {
+            message = message.Substring(0, 100).Trim();
+        }
+        string senderName = myChat.GetNameByConnectionId(netMsg.conn.connectionId);
+
+        //string broadcastMessage = string.Format("{0}: {1}", senderName, message);
+        //NetworkServer.SendToAll(3001, new StringMessage(broadcastMessage));
+        ChatMessage chatMessage = new ChatMessage() { sender = senderName, message = message };
+        NetworkServer.SendToAll(3001, chatMessage);
     }
 
     public void OnPlayerNameReceived(NetworkMessage netMsg)
@@ -81,6 +113,9 @@ public class CustomNetworkControl : NetworkManager {
         NetworkServer.SendToAll(2003, new StringMessage(playerName));
     }
     
-    
+    public void SendChatMessage(string message)
+    {
+        client.Send(3000, new StringMessage(message));
+    }
 
 }
