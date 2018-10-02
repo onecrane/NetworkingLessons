@@ -7,101 +7,99 @@ public class ChatPanelController : MonoBehaviour {
 
     public Text lblMessages;
     public InputField txtMessage;
-    public Button btnChatSend;
+    public Button btnSend;
 
+    public int numberOfLines = 5;
+
+    private List<string> displayLines = new List<string>();
+
+    private CustomNetworkControl myNetworkControl;
     private ChatController myChat;
-    private bool panelReactivatedLastFrame = false;
 
 	// Use this for initialization
 	void Start () {
+
+        lblMessages.text = string.Empty;
+
+        txtMessage.ActivateInputField();
+        txtMessage.Select();
+
+
+
+        GameObject networkController = GameObject.FindGameObjectWithTag("NetworkController");
+        if (networkController != null)
+        {
+            myNetworkControl = networkController.GetComponent<CustomNetworkControl>();
+        }
+
         myChat = GameObject.FindGameObjectWithTag("ChatSystem").GetComponent<ChatController>();
-	}
-	
-	// Update is called once per frame
-	void Update () {
 
-        ChatController.ChatMessage[] chatMessages = myChat.GetMessages();
-        lblMessages.text = "I";
-        int lines = myChat.maxMessages;
-
-        List<string> messageLines = new List<string>();
-
-        foreach (ChatController.ChatMessage chatMessage in chatMessages)
-        {
-            if (chatMessage.sender != null)
-            {
-                messageLines.Add(string.Format("{0}: {1}", chatMessage.sender, chatMessage.message));
-            }
-            else
-            {
-                messageLines.Add(chatMessage.message);
-            }
-        }
-        while (messageLines.Count < lines) messageLines.Add(string.Empty);
-
-        string unifiedMessages = string.Empty;
-        messageLines.Reverse();
-        foreach (string messageLine in messageLines)
-        {
-            unifiedMessages += messageLine + "\n";
-        }
-
-        lblMessages.text = unifiedMessages;
-
-        if (panelReactivatedLastFrame)
-        {
-            txtMessage.MoveTextEnd(true);
-            panelReactivatedLastFrame = false;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            bool isEnabled = GetComponent<Image>().enabled;
-
-            GetComponent<Image>().enabled = !isEnabled;
-
-            lblMessages.enabled = !isEnabled;
-
-            txtMessage.enabled = !isEnabled;
-            txtMessage.GetComponent<Image>().enabled = !isEnabled;
-            txtMessage.transform.Find("Placeholder").GetComponent<Text>().enabled = !isEnabled;
-            txtMessage.transform.Find("Text").GetComponent<Text>().enabled = !isEnabled;
-
-            btnChatSend.enabled = !isEnabled;
-            btnChatSend.GetComponent<Image>().enabled = !isEnabled;
-            btnChatSend.transform.Find("Text").GetComponent<Text>().enabled = !isEnabled;
-
-            if (!isEnabled)
-            {
-                txtMessage.Select();
-                txtMessage.ActivateInputField();
-                panelReactivatedLastFrame = true;
-            }
-            else
-            {
-                txtMessage.DeactivateInputField();
-            }
-        }
-	}
-
-    public void txtMessage_OnEndEdit()
-    {
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            // Treat it like clicking Send
-            btnChatSend_OnClick();
-        }
     }
 
-    public void btnChatSend_OnClick()
+    // Update is called once per frame
+    void Update () {
+		if (myNetworkControl != null)
+        {
+            displayLines.Clear();
+            for (int i = myChat.messages.Count - 1; i >= 0 && displayLines.Count < numberOfLines; i--)
+            {
+                displayLines.Add(myChat.messages[i]);
+            }
+            displayLines.Reverse();
+            RefreshMessageDisplay();
+        }
+	}
+
+
+    public void btnSend_Click()
     {
+
         string message = txtMessage.text.Trim();
         if (message.Length > 0)
         {
-            myChat.AddMessage(message);
+            if (myNetworkControl == null)
+            {
+                displayLines.Add(message);
+                if (displayLines.Count > numberOfLines)
+                {
+                    displayLines.RemoveAt(0);
+                }
+
+                RefreshMessageDisplay();
+            }
+            else
+            {
+                myNetworkControl.SendChatMessage(message);
+            }
+
+
+
+
+
             txtMessage.text = string.Empty;
-            txtMessage.Select();
-            txtMessage.ActivateInputField();
+        }
+
+        txtMessage.ActivateInputField();
+
+
+
+    }
+
+    public void RefreshMessageDisplay()
+    {
+        lblMessages.text = string.Empty;
+        for (int i = 0; i < displayLines.Count; i++)
+        {
+            lblMessages.text += displayLines[i];
+            if (i < displayLines.Count - 1) lblMessages.text += "\n";
+        }
+    }
+
+    public void txtMessage_EndEdit()
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            btnSend_Click();
         }
     }
 

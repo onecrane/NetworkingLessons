@@ -13,19 +13,40 @@ public class CustomNetworkControl : NetworkManager {
         public string message;
     }
 
-    public string playerName;
+    #region Fields
 
+    public string playerName;
     private ChatController myChat;
 
-	// Use this for initialization
-	void Start () {
+    #endregion
+
+    #region Custom message types
+
+    public class ChatMessage : MessageBase
+    {
+        public string sender;
+        public string message;
+    }
+
+    #endregion
+
+    #region MonoBehaviour events
+
+    // Use this for initialization
+    void Start()
+    {
 
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+
+    #endregion
+
+    #region Network Manager events
 
     // Called on the client when connected to the server.
     public override void OnClientConnect(NetworkConnection conn)
@@ -35,6 +56,9 @@ public class CustomNetworkControl : NetworkManager {
         client.Send(2001, new StringMessage(playerName));
     }
 
+    #endregion
+
+    #region Network control commands
     public void StartNetworkHost()
     {
         print("Starting host and registering handler, I think");
@@ -53,22 +77,27 @@ public class CustomNetworkControl : NetworkManager {
         RegisterClientListeners();
     }
 
+    public void SendChatMessage(string message)
+    {
+        client.Send(3000, new StringMessage(message));
+    }
+
+    #endregion
+
+    #region Client listeners
+
     private void RegisterClientListeners()
     {
         client.RegisterHandler(2002, OnNameAssigned);
         client.RegisterHandler(2003, OnOtherPlayerJoinedGame);
-        client.RegisterHandler(3000, OnChatMessageReceived);
+        client.RegisterHandler(3001, OnChatMessageReceived);
     }
 
-    public void OnChatMessageReceived(NetworkMessage netMsg)
+    public void OnNameAssigned(NetworkMessage netMsg)
     {
-        ChatMessage chatMessage = netMsg.ReadMessage<ChatMessage>();
-        myChat.ReceiveMessage(chatMessage.sender, chatMessage.message);
-    }
-
-    internal void SendChatMessage(string message)
-    {
-        client.Send(3001, new StringMessage(message));
+        string playerName = netMsg.ReadMessage<StringMessage>().value;
+        print("Client player name assigned to " + playerName);
+        myChat.SetLocalPlayerName(playerName);
     }
 
     public void OnOtherPlayerJoinedGame(NetworkMessage netMsg)
@@ -78,27 +107,21 @@ public class CustomNetworkControl : NetworkManager {
         myChat.AnnouncePlayer(playerName);
     }
 
-    public void OnNameAssigned(NetworkMessage netMsg)
+    public void OnChatMessageReceived(NetworkMessage netMsg)
     {
-        string playerName = netMsg.ReadMessage<StringMessage>().value;
-        print("Client player name assigned to " + playerName);
-        myChat.SetLocalPlayerName(playerName);
+        ChatMessage received = netMsg.ReadMessage<ChatMessage>();
+
+        myChat.OnChatMessageReceived(received.sender, received.message);
     }
-    
+
+    #endregion
+
+    #region Server listeners
 
     private void RegisterServerListeners()
     {
         NetworkServer.RegisterHandler(2001, OnPlayerNameReceived);
-        NetworkServer.RegisterHandler(3001, OnPlayerSentChatMessage);
-    }
-
-    public void OnPlayerSentChatMessage(NetworkMessage netMsg)
-    {
-        string message = netMsg.ReadMessage<StringMessage>().value;
-        string sender = myChat.GetNameFromConnectionId(netMsg.conn.connectionId);
-
-        if (message.Length > 80) message = message.Substring(0, 80);
-        NetworkServer.SendToAll(3000, new ChatMessage() { sender = sender, message = message });
+        NetworkServer.RegisterHandler(3000, OnPlayerSendChatMessage);
     }
 
     public void OnPlayerNameReceived(NetworkMessage netMsg)
@@ -109,7 +132,22 @@ public class CustomNetworkControl : NetworkManager {
         NetworkServer.SendToClient(netMsg.conn.connectionId, 2002, new StringMessage(playerName));
         NetworkServer.SendToAll(2003, new StringMessage(playerName));
     }
-    
-    
+
+    public void OnPlayerSendChatMessage(NetworkMessage netMsg)
+    {
+        string message = netMsg.ReadMessage<StringMessage>().value.Trim();
+        if (message.Length > 100)
+        {
+            message = message.Substring(0, 100).Trim();
+        }
+        string senderName = myChat.GetNameByConnectionId(netMsg.conn.connectionId);
+
+        //string broadcastMessage = string.Format("{0}: {1}", senderName, message);
+        //NetworkServer.SendToAll(3001, new StringMessage(broadcastMessage));
+        ChatMessage chatMessage = new ChatMessage() { sender = senderName, message = message };
+        NetworkServer.SendToAll(3001, chatMessage);
+    }
+
+    #endregion
 
 }

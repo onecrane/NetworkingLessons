@@ -28,6 +28,17 @@ public class ChatController : MonoBehaviour {
         return namesByConnectionId[connectionId];
     }
 
+    public void OnChatMessageReceived(string sender, string message)
+    {
+        messages.Add(string.Format("[User chat] {0}: {1}", sender, message));
+//        messages.Add(message);
+    }
+
+    public string GetNameByConnectionId(int connectionId)
+    {
+        return namesByConnectionId[connectionId];
+    }
+
     public void SetLocalPlayerName(string playerName)
     {
         localPlayerName = playerName;
@@ -79,7 +90,7 @@ public class ChatController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-
+        //if (Input.GetKeyDown(KeyCode.Space)) messages.Add("Hello?");
     }
 
     private string EnsureUnique(string playerName, int connectionId)
@@ -116,5 +127,6 @@ public class ChatController : MonoBehaviour {
 
         return playerName;
     }
+
 
 }
