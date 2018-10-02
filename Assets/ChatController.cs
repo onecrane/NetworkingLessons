@@ -7,22 +7,64 @@ using UnityEngine.Networking.NetworkSystem;
 
 public class ChatController : MonoBehaviour {
     
+    public struct ChatMessage
+    {
+        public string sender;
+        public string message;
+    }
+
     private Dictionary<int, string> namesByConnectionId = new Dictionary<int, string>();
     private Dictionary<string, int> connectionIdsByName = new Dictionary<string, int>();
     public int maxNameLength = 20;
-    private string localPlayerName;
+    public int maxMessages = 5;
+    private string localPlayerName = "LocalPlayer";
 
-    public List<string> messages = new List<string>();
+    private List<ChatMessage> messages = new List<ChatMessage>();
+
+    private CustomNetworkControl myNetworkControl;
+
+    public string GetNameFromConnectionId(int connectionId)
+    {
+        return namesByConnectionId[connectionId];
+    }
 
     public void SetLocalPlayerName(string playerName)
     {
         localPlayerName = playerName;
     }
 
+    internal ChatMessage[] GetMessages()
+    {
+        return messages.ToArray();
+    }
+
+    // Called by the local player only
+    internal void AddMessage(string message)
+    {
+        if (myNetworkControl == null)
+        {
+            messages.Insert(0, new ChatMessage() { sender = localPlayerName, message = message });
+            if (messages.Count > maxMessages)
+            {
+                messages.RemoveAt(messages.Count - 1);
+            }
+        }
+        else
+        {
+            // Send through the network
+            myNetworkControl.SendChatMessage(message);
+        }
+    }
+
+    public void ReceiveMessage(string sender, string message)
+    {
+        messages.Insert(0, (new ChatMessage() { sender = sender, message = message }));
+    }
+
     public void AnnouncePlayer(string playerName)
     {
         print("Pretty sure I'm announcing a player named " + playerName);
-        messages.Add(string.Format("*** Player {0} joined ***", playerName));
+        messages.Add(new ChatMessage() { sender = null, message = string.Format("*** Player {0} joined ***", playerName) });
     }
 
     private void Awake()
@@ -32,11 +74,12 @@ public class ChatController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        myNetworkControl = GameObject.FindGameObjectWithTag("NetworkController").GetComponent<CustomNetworkControl>();
     }
 
     // Update is called once per frame
     void Update () {
-        if (Input.GetKeyDown(KeyCode.Space)) messages.Add("Hello?");
+
     }
 
     private string EnsureUnique(string playerName, int connectionId)
@@ -72,15 +115,6 @@ public class ChatController : MonoBehaviour {
         namesByConnectionId.Add(connectionId, playerName);
 
         return playerName;
-    }
-
-    private void OnGUI()
-    {
-        foreach (string message in messages)
-        {
-            GUILayout.Label(message);
-        }
-
     }
 
 }

@@ -1,10 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 
 public class CustomNetworkControl : NetworkManager {
+    
+    public class ChatMessage : MessageBase
+    {
+        public string sender;
+        public string message;
+    }
 
     public string playerName;
 
@@ -50,6 +57,18 @@ public class CustomNetworkControl : NetworkManager {
     {
         client.RegisterHandler(2002, OnNameAssigned);
         client.RegisterHandler(2003, OnOtherPlayerJoinedGame);
+        client.RegisterHandler(3000, OnChatMessageReceived);
+    }
+
+    public void OnChatMessageReceived(NetworkMessage netMsg)
+    {
+        ChatMessage chatMessage = netMsg.ReadMessage<ChatMessage>();
+        myChat.ReceiveMessage(chatMessage.sender, chatMessage.message);
+    }
+
+    internal void SendChatMessage(string message)
+    {
+        client.Send(3001, new StringMessage(message));
     }
 
     public void OnOtherPlayerJoinedGame(NetworkMessage netMsg)
@@ -70,6 +89,16 @@ public class CustomNetworkControl : NetworkManager {
     private void RegisterServerListeners()
     {
         NetworkServer.RegisterHandler(2001, OnPlayerNameReceived);
+        NetworkServer.RegisterHandler(3001, OnPlayerSentChatMessage);
+    }
+
+    public void OnPlayerSentChatMessage(NetworkMessage netMsg)
+    {
+        string message = netMsg.ReadMessage<StringMessage>().value;
+        string sender = myChat.GetNameFromConnectionId(netMsg.conn.connectionId);
+
+        if (message.Length > 80) message = message.Substring(0, 80);
+        NetworkServer.SendToAll(3000, new ChatMessage() { sender = sender, message = message });
     }
 
     public void OnPlayerNameReceived(NetworkMessage netMsg)
