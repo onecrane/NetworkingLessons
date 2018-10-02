@@ -6,12 +6,6 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 
 public class CustomNetworkControl : NetworkManager {
-    
-    public class ChatMessage : MessageBase
-    {
-        public string sender;
-        public string message;
-    }
 
     #region Fields
 

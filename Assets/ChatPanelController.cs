@@ -48,7 +48,22 @@ public class ChatPanelController : MonoBehaviour {
             displayLines.Reverse();
             RefreshMessageDisplay();
         }
-	}
+
+
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            print("Message display has width " + lblMessages.rectTransform.rect.width);
+            // Debug the width of each line
+            string trueText = lblMessages.text;
+            foreach (string message in displayLines)
+            {
+                lblMessages.text = message;
+                float preferredWidth = lblMessages.preferredWidth;
+                print(string.Format("Message [{0}] has preferred width {1}", message, preferredWidth));
+            }
+            lblMessages.text = trueText;
+        }
+    }
 
 
     public void btnSend_Click()
