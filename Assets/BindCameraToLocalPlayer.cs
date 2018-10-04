@@ -8,7 +8,7 @@ public class BindCameraToLocalPlayer : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        if (GetComponent<NetworkIdentity>().isLocalPlayer)
+        if (GetComponent<NetworkIdentity>().isLocalPlayer || (!GetComponent<NetworkIdentity>().isClient && !GetComponent<NetworkIdentity>().isServer) )
         {
             Transform mainCamera = Camera.main.transform;
             mainCamera.parent = transform.Find("EyeMount");
