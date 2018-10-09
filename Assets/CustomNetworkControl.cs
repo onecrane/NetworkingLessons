@@ -12,6 +12,9 @@ public class CustomNetworkControl : NetworkManager {
     public string playerName;
     private ChatController myChat;
     private ScoreboardController myScoreboard;
+    public bool isServer;
+
+    public string serverIP;
 
     internal void RegisterScoreboard(ScoreboardController scoreboardController)
     {
@@ -54,6 +57,12 @@ public class CustomNetworkControl : NetworkManager {
         print("Received connect message");
         myChat = GameObject.FindGameObjectWithTag("ChatSystem").GetComponent<ChatController>();
         client.Send(2001, new StringMessage(playerName));
+        isServer = false;
+    }
+
+    public override void OnStartServer()
+    {
+        isServer = true;
     }
 
     #endregion
@@ -62,7 +71,9 @@ public class CustomNetworkControl : NetworkManager {
     public void StartNetworkHost()
     {
         print("Starting host and registering handler, I think");
+        print("Network address is " + networkAddress);
         StartHost();
+        print("Network address is now " + networkAddress);
 
         RegisterServerListeners();
         RegisterClientListeners();

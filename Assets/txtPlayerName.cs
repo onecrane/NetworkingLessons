@@ -17,8 +17,5 @@ public class txtPlayerName : MonoBehaviour {
 		
 	}
 
-    public void AssignNameToNetworkControl()
-    {
-        networkControl.playerName = GetComponent<InputField>().text;
-    }
+
 }

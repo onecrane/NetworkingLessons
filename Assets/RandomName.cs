@@ -7,8 +7,6 @@ public class RandomName : MonoBehaviour {
 
     public int maxLength = 20;
 
-    public InputField textField;
-
     public string[] adjectives = new string[]
     {
         "Blue", "Green", "Yellow", "Red", "Orange", "Cyan", "Magenta", "Brown", "Black", "Taupe", "Chartreuse", "Ebony", "Ivory", 
@@ -71,7 +69,6 @@ public class RandomName : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        SetRandomName();
     }
 	
 	// Update is called once per frame
@@ -86,13 +83,6 @@ public class RandomName : MonoBehaviour {
             if (candidate.Length <= maxLength) return candidate;
         }
         return "Player";
-    }
-
-    public void SetRandomName()
-    {
-        string randomName = GetRandomName();
-
-        textField.text = randomName;
     }
     
 }

@@ -17,7 +17,7 @@ public class ScoreboardController : MonoBehaviour {
         StringBuilder scoreBuilder = new StringBuilder();
         foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
         {
-            scoreBuilder.AppendFormat("{0}: {1}\n", player.GetComponent<PlayerScore>().playerName, player.GetComponent<PlayerScore>().score);
+            scoreBuilder.AppendFormat("{0}: {1}\n", player.GetComponent<PlayerScore>().playerName, player.GetComponent<PlayerScore>().Score);
         }
 
         GetComponent<Text>().text = scoreBuilder.ToString();

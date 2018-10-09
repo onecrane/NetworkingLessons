@@ -37,7 +37,10 @@ public class FireControls : NetworkBehaviour {
     [ClientRpc]
     void RpcShowHit()
     {
-        print("I got hit!");
+        if (isLocalPlayer)
+        {
+            print(GetComponent<PlayerScore>().playerName + " got hit!");
+        }
     }
     
 
@@ -47,7 +50,9 @@ public class FireControls : NetworkBehaviour {
 
         if (collision.gameObject.tag == "Projectile")
         {
-            collision.gameObject.GetComponent<PuffballController>().owningPlayer.GetComponent<PlayerScore>().Score++;
+            FireControls firingPlayer = collision.gameObject.GetComponent<PuffballController>().owningPlayer;
+            firingPlayer.GetComponent<PlayerScore>().Score++;
+            //.GetComponent<PlayerScore>().Score++;
             RpcShowHit();
         }
     }

@@ -8,6 +8,7 @@ public class ChatPanelController : MonoBehaviour {
     public Text lblMessages;
     public InputField txtMessage;
     public Button btnSend;
+    public Text lblServerIP;
 
     public int numberOfLines = 5;
 
@@ -24,12 +25,18 @@ public class ChatPanelController : MonoBehaviour {
         txtMessage.ActivateInputField();
         txtMessage.Select();
 
-
-
+        
         GameObject networkController = GameObject.FindGameObjectWithTag("NetworkController");
         if (networkController != null)
         {
             myNetworkControl = networkController.GetComponent<CustomNetworkControl>();
+        }
+        if (myNetworkControl.isServer)
+        {
+            lblServerIP.text = "Server IP: " + myNetworkControl.serverIP;
+        } else
+        {
+            lblServerIP.text = "Connected to: " + myNetworkControl.networkAddress;
         }
 
         myChat = GameObject.FindGameObjectWithTag("ChatSystem").GetComponent<ChatController>();
