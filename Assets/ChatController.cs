@@ -12,7 +12,7 @@ public class ChatController : MonoBehaviour {
     private Dictionary<string, int> connectionIdsByName = new Dictionary<string, int>();
     public int maxNameLength = 20;
     public int maxMessages = 5;
-    private string localPlayerName = "LocalPlayer";
+    public string localPlayerName = "LocalPlayer";
 
     public List<string> messages = new List<string>();
 

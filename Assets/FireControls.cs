@@ -27,6 +27,7 @@ public class FireControls : NetworkBehaviour {
     {
         GameObject newProjectile = GameObject.Instantiate(projectile, firePoint.position, firePoint.rotation);
         newProjectile.GetComponent<Rigidbody>().AddForce(newProjectile.transform.forward * launchForce);
+        newProjectile.GetComponent<PuffballController>().owningPlayer = this;
 
         NetworkServer.Spawn(newProjectile);
 
@@ -46,6 +47,7 @@ public class FireControls : NetworkBehaviour {
 
         if (collision.gameObject.tag == "Projectile")
         {
+            collision.gameObject.GetComponent<PuffballController>().owningPlayer.GetComponent<PlayerScore>().Score++;
             RpcShowHit();
         }
     }

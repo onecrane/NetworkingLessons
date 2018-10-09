@@ -48,6 +48,7 @@ GameObject:
   - component: {fileID: 143299534798896374}
   - component: {fileID: 114234954584396140}
   - component: {fileID: 114131620338873016}
+  - component: {fileID: 114440921892437314}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -693,6 +694,18 @@ MonoBehaviour:
   moveSpeed: 5
   rotateFactor: 100
   pitchFactor: 60
+--- !u!114 &114440921892437314
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1092667634600816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8473be431365cfb4e9143e44ad981ee0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  score: 0
 --- !u!114 &114585626061072270
 MonoBehaviour:
   m_ObjectHideFlags: 1

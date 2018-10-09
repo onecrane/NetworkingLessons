@@ -11,6 +11,12 @@ public class CustomNetworkControl : NetworkManager {
 
     public string playerName;
     private ChatController myChat;
+    private ScoreboardController myScoreboard;
+
+    internal void RegisterScoreboard(ScoreboardController scoreboardController)
+    {
+        myScoreboard = scoreboardController;
+    }
 
     #endregion
 
@@ -123,6 +129,7 @@ public class CustomNetworkControl : NetworkManager {
         string playerName = netMsg.ReadMessage<StringMessage>().value;
         print("Received player name " + playerName);
         playerName = myChat.SetPlayerName(playerName, netMsg.conn.connectionId);
+
         NetworkServer.SendToClient(netMsg.conn.connectionId, 2002, new StringMessage(playerName));
         NetworkServer.SendToAll(2003, new StringMessage(playerName));
     }
