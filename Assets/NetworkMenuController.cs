@@ -29,7 +29,7 @@ public class NetworkMenuController : MonoBehaviour {
 
             if (IsValidIPAddress(ip.ToString()))
             {
-                txtServerIp.text = ip.ToString();
+                //txtServerIp.text = ip.ToString();
                 myCustomNetworkControl.serverIP = ip.ToString();
             }
 
@@ -54,11 +54,14 @@ public class NetworkMenuController : MonoBehaviour {
         string ipAddress = txtServerIp.text.Trim();
         if (!IsValidIPAddress(ipAddress))
         {
+            print("IP address " + ipAddress + " is invalid");
             txtServerIp.text = string.Empty;
         }
         else
         {
+            myCustomNetworkControl.serverIP = txtServerIp.text;
             myCustomNetworkControl.networkAddress = txtServerIp.text;
+            print("My network address is..." + myCustomNetworkControl.networkAddress);
             myCustomNetworkControl.StartNetworkClient();
         }
     }

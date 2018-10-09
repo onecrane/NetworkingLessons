@@ -434,8 +434,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1998023559}
-        m_MethodName: StartNetworkHost
+      - m_Target: {fileID: 159758145}
+        m_MethodName: btnStartServer_Click
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1013,8 +1013,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1998023559}
-        m_MethodName: StartNetworkClient
+      - m_Target: {fileID: 159758145}
+        m_MethodName: btnStartClient_Click
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2477,6 +2477,8 @@ MonoBehaviour:
   isNetworkActive: 0
   matchMaker: {fileID: 0}
   playerName: 
+  isServer: 0
+  serverIP: 
 --- !u!4 &1998023560
 Transform:
   m_ObjectHideFlags: 0

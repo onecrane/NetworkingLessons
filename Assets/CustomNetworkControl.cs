@@ -83,6 +83,7 @@ public class CustomNetworkControl : NetworkManager {
     public void StartNetworkClient()
     {
         print("Starting client and registering handler, I think");
+        print("networkAddress to connect to is " + networkAddress);
         StartClient();
 
         RegisterClientListeners();
